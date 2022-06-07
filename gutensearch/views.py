@@ -17,12 +17,12 @@ def search_query_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = SearchForm(request.POST)
         if form.is_valid():
-            search_query = form.cleaned_data.get("search_query")
+            search_term = form.cleaned_data.get("search_term")
             try:
-                parameters = {"search_query": search_query}
+                parameters = {"search_term": search_term}
                 return redirect(reverse_with_parameters("search_result", parameters))
             except ValidationError as error:
-                form.add_error("search_query", error)
+                form.add_error("search_term", error)
     else:
         form = SearchForm()
     return render(
@@ -38,9 +38,9 @@ def search_result_view(request: HttpRequest) -> HttpResponse:
     form = SearchForm(request.GET)
     if not form.is_valid():
         raise BadRequest()
-    search_query = form.cleaned_data["search_query"]
+    search_term = form.cleaned_data["search_term"]
     search_start_time = time.time()
-    documents = documents_matching(search_query)[:20]
+    documents = documents_matching(search_term)[:20]
     search_duration_in_ms = (time.time() - search_start_time) * 1000
     return render(
         request,
@@ -48,13 +48,13 @@ def search_result_view(request: HttpRequest) -> HttpResponse:
         {
             "documents": documents,
             "search_duration_in_ms": search_duration_in_ms,
-            "search_query": search_query,
+            "search_term": search_term,
         },
     )
 
 
-def documents_matching(search_query: str) -> QuerySet[Document]:
-    return Document.objects.filter(Q(title__icontains=search_query) | Q(text__icontains=search_query)).order_by("id")
+def documents_matching(search_term: str) -> QuerySet[Document]:
+    return Document.objects.filter(Q(title__icontains=search_term) | Q(text__icontains=search_term)).order_by("id")
 
 
 def reverse_with_parameters(view_name: str, parameters: Dict[str, Optional[Any]]) -> str:

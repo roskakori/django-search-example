@@ -6,8 +6,8 @@ MAX_SEARCH_TERM_LENGTH = 1000
 
 
 class SearchForm(forms.Form):
-    search_query = forms.CharField(
-        label=_("Search query"),
+    search_term = forms.CharField(
+        label=_("Search term"),
         localize=True,
         min_length=MIN_SEARCH_TERM_LENGTH,
         max_length=MAX_SEARCH_TERM_LENGTH,

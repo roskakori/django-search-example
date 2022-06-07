@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Gutensearch for {{ search_query }}</title>
+    <title>Gutensearch for {{ search_term }}</title>
   </head>
   <body>
-    <h1>Gutensearch for {{ search_query }}</h1>
+    <h1>Gutensearch for {{ search_term }}</h1>
     <p>Search duration: {{ search_duration_in_ms }}</p>
     <ul>
       {% for document in documents %}
