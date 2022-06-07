@@ -1,8 +1,10 @@
 import time
 from typing import Any, Dict, Optional
 
+from django.contrib.postgres.search import SearchQuery, SearchVector
 from django.core.exceptions import BadRequest, ValidationError
-from django.db.models import Q, QuerySet
+from django.db import connection
+from django.db.models import QuerySet
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -42,19 +44,35 @@ def search_result_view(request: HttpRequest) -> HttpResponse:
     search_start_time = time.time()
     documents = documents_matching(search_term)[:20]
     search_duration_in_ms = (time.time() - search_start_time) * 1000
+    search_expression = to_tsquery(search_term)
     return render(
         request,
         "gutensearch/search_result.html",
         {
             "documents": documents,
             "search_duration_in_ms": search_duration_in_ms,
+            "search_expression": search_expression,
             "search_term": search_term,
         },
     )
 
 
+def to_tsquery(search_term: str) -> str:
+    with connection.cursor() as cursor:
+        cursor.execute("select to_tsquery(%s, %s)", ["german", search_term])
+        (result,) = cursor.fetchone()
+    return result
+
+
 def documents_matching(search_term: str) -> QuerySet[Document]:
-    return Document.objects.filter(Q(title__icontains=search_term) | Q(text__icontains=search_term)).order_by("id")
+    search_query = SearchQuery(search_term, search_type="raw")
+    return (
+        Document.objects.annotate(
+            search=SearchVector("text", "title"),
+        )
+        .filter(search=search_query)
+        .order_by("id")
+    )
 
 
 def reverse_with_parameters(view_name: str, parameters: Dict[str, Optional[Any]]) -> str:
