@@ -11,7 +11,7 @@
       {% for document in documents %}
       <p>
         <a href="{% url 'document' pk=document.pk %}">{{ document.title }}</a>
-        ({{ document.authors }})
+        ({{ document.authors }}) Rank: {{ document.rank }}
       </p>
       {% endfor %}
     </ul>

@@ -1,7 +1,7 @@
 import time
 from typing import Any, Dict, Optional
 
-from django.contrib.postgres.search import SearchQuery, SearchVector
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.core.exceptions import BadRequest, ValidationError
 from django.db import connection
 from django.db.models import QuerySet
@@ -67,12 +67,13 @@ def to_tsquery(search_term: str) -> str:
 def documents_matching(search_term: str) -> QuerySet[Document]:
     search_query = SearchQuery(search_term, search_type="raw")
     search_vector = SearchVector("text", "title")
+    search_rank = SearchRank(search_vector, search_query)
     return (
         Document.objects.annotate(
-            search=search_vector,
+            rank=search_rank,
         )
-        .filter(search=search_query)
-        .order_by("id")
+        .filter(rank__gt=0)
+        .order_by("-rank")
     )
 
 
