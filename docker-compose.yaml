@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  postgres:
+    container_name: "gutensearch_postgres"
+    image: "postgres:14"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5678:5432"
+    environment:
+      POSTGRES_USERNAME: "postgres"
+      POSTGRES_PASSWORD: "deMo.123"
+
+volumes:
+  postgres-data:
+    driver: local

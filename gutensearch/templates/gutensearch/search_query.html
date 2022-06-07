@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gutensearch</title>
+  </head>
+  <body>
+    <p><a href="{% url 'admin:index' %}" class="nav-link">Admin</a></p>
+    <h1>Gutensearch</h1>
+    <form method="POST">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit">Search</button>
+    </form>
+  </body>
+</html>

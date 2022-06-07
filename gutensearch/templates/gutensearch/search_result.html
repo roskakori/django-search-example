@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gutensearch for {{ search_query }}</title>
+  </head>
+  <body>
+    <h1>Gutensearch for {{ search_query }}</h1>
+    <p>Search duration: {{ search_duration_in_ms }}</p>
+    <ul>
+      {% for document in documents %}
+      <p>
+        <a href="{% url 'document' pk=document.pk %}">{{ document.title }}</a>
+        ({{ document.authors }})
+      </p>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
