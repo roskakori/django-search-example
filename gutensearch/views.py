@@ -66,9 +66,10 @@ def to_tsquery(search_term: str) -> str:
 
 def documents_matching(search_term: str) -> QuerySet[Document]:
     search_query = SearchQuery(search_term, search_type="raw")
+    search_vector = SearchVector("text", "title")
     return (
         Document.objects.annotate(
-            search=SearchVector("text", "title"),
+            search=search_vector,
         )
         .filter(search=search_query)
         .order_by("id")
