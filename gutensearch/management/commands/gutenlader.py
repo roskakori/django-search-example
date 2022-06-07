@@ -15,7 +15,7 @@ MAX_INTRO_LINES = 200
 
 DEFAULT_ENCODING = "iso-8859-1"
 
-_BATCH_SIZE = 100
+_BATCH_SIZE = 50
 
 _DEFAULT_BASE_DIR = BASE_DIR / "gutenberg"
 _DEFAULT_MAX_COUNT = 100
@@ -108,6 +108,7 @@ class Command(BaseCommand):
         self._id_to_text_path_map = self._id_to_path_map("[0-9]*-8.txt")
         self._id_to_html_path_map = self._id_to_path_map("[0-9]*-h.htm")
         self._import_documents()
+        self._update_search_vectors()
         document_count = Document.objects.count()
         self.stdout.write(self.style.SUCCESS(f"Successfully imported {document_count} documents"))
 
@@ -160,6 +161,17 @@ class Command(BaseCommand):
                 Document.objects.bulk_create(documents_to_add)
                 documents_to_add.clear()
         Document.objects.bulk_create(documents_to_add)
+
+    def _update_search_vectors(self):
+        documents_to_update = []
+        for document in tracked_progress(Document.objects.all(), description="Updating search vectors"):
+            document.update_search_vector()
+            documents_to_update.append(document)
+            if len(documents_to_update) >= _BATCH_SIZE:
+                Document.objects.bulk_update(documents_to_update, fields=["search_vector"])
+                documents_to_update.clear()
+        # Upate remaining documents.
+        Document.objects.bulk_update(documents_to_update, fields=["search_vector"])
 
 
 def _intro_lines(text: str) -> List[str]:
