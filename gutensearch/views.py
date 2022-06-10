@@ -1,4 +1,3 @@
-import time
 from typing import Any, Dict, Optional
 
 from django.contrib.postgres.search import SearchQuery, SearchRank
@@ -41,16 +40,13 @@ def search_result_view(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         raise BadRequest()
     search_term = form.cleaned_data["search_term"]
-    search_start_time = time.time()
     documents = documents_matching(search_term)[:20]
-    search_duration_in_ms = (time.time() - search_start_time) * 1000
     search_expression = to_tsquery(search_term)
     return render(
         request,
         "gutensearch/search_result.html",
         {
             "documents": documents,
-            "search_duration_in_ms": search_duration_in_ms,
             "search_expression": search_expression,
             "search_term": search_term,
         },
