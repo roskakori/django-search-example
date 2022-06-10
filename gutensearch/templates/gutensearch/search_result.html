@@ -5,14 +5,12 @@
   </head>
   <body>
     <h1>Gutensearch for {{ search_term }}</h1>
-    <ul>
-      {% for document in documents %}
-      <p>
-        <a href="{% url 'document' pk=document.pk %}">{{ document.title }}</a>
-        ({{ document.authors }})
-      </p>
-      <hr>
-      {% endfor %}
-    </ul>
+    {% for document in documents %}
+    <p>
+      <a href="{% url 'document' pk=document.pk %}">{{ document.title }}</a>
+      ({{ document.authors }})
+    </p>
+    <hr>
+    {% endfor %}
   </body>
 </html>

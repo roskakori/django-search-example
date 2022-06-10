@@ -1,4 +1,3 @@
-import time
 from typing import Any, Dict, Optional
 
 from django.core.exceptions import BadRequest, ValidationError
@@ -39,15 +38,12 @@ def search_result_view(request: HttpRequest) -> HttpResponse:
     if not form.is_valid():
         raise BadRequest()
     search_term = form.cleaned_data["search_term"]
-    search_start_time = time.time()
     documents = documents_matching(search_term)[:20]
-    search_duration_in_ms = (time.time() - search_start_time) * 1000
     return render(
         request,
         "gutensearch/search_result.html",
         {
             "documents": documents,
-            "search_duration_in_ms": search_duration_in_ms,
             "search_term": search_term,
         },
     )
