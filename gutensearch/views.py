@@ -59,7 +59,7 @@ def search_result_view(request: HttpRequest) -> HttpResponse:
 
 def to_tsquery(search_term: str) -> str:
     with connection.cursor() as cursor:
-        cursor.execute("select to_tsquery(%s, %s)", ["german", search_term])
+        cursor.execute("select to_tsquery(%s, %s)", ["simple", search_term])
         (result,) = cursor.fetchone()
     return result
 
