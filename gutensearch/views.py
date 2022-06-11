@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from django.contrib.postgres.search import SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchHeadline, SearchQuery, SearchRank
 from django.core.exceptions import BadRequest, ValidationError
 from django.db import connection
 from django.db.models import F, QuerySet, Value
@@ -12,6 +12,9 @@ from django.utils.http import urlencode
 
 from gutensearch.forms import SearchForm
 from gutensearch.models import Document
+
+_SEARCH_HEADLINE_SELECTION_START = '<span style="background-color: lightgreen">'
+_SEARCH_HEADLINE_SELECTION_STOP = "</span>"
 
 
 def search_query_view(request: HttpRequest) -> HttpResponse:
@@ -67,6 +70,22 @@ def documents_matching(search_term: str) -> QuerySet[Document]:
     return (
         Document.objects.annotate(
             rank=search_rank,
+            search_headline_text=SearchHeadline(
+                "text",
+                search_query,
+                min_words=50,
+                max_words=150,
+                start_sel=_SEARCH_HEADLINE_SELECTION_START,
+                stop_sel=_SEARCH_HEADLINE_SELECTION_STOP,
+            ),
+            search_headline_title=SearchHeadline(
+                "title",
+                search_query,
+                min_words=999,
+                max_words=1000,
+                start_sel=_SEARCH_HEADLINE_SELECTION_START,
+                stop_sel=_SEARCH_HEADLINE_SELECTION_STOP,
+            ),
         )
         .filter(search_vector=search_query)
         .order_by("-rank")
