@@ -60,8 +60,11 @@ _BROKEN_ENCODING_TO_ENCODING_MAP = {
     "cp-1251": "cp1251",
     "cp-1252": "cp1252",
     "iso latin-1": "iso-8859-1",
+    "iso-latin-1": "iso-8859-1",
     "iso-646-us (us-ascii)": "ascii",
     "iso-859-1": "iso-8859-1",
+    "iso-8859": "iso-8859-1",
+    "iso 8859-1 (latin-1)": "iso-8859-1",
     "unicode utf-8": "utf-8",
 }
 
