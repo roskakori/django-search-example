@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from rich.progress import track as tracked_progress
 
 from django_search_example.settings import BASE_DIR
-from gutensearch.models import Document
+from gutensearch.models import Document, Language
 
 MAX_INTRO_LENGTH = 10000
 MAX_INTRO_LINES = 200
@@ -142,10 +142,13 @@ class Command(BaseCommand):
                     if html is not None:
                         title, authors, language = _title_authors_language_from(text)
                         language_code = _language_code(language)
+                        language = Language(language_code) if language_code in Language else Language.OTHER
+                        config = language.config
                         documents_to_add.append(
                             Document(
                                 id=document_id,
                                 authors=authors,
+                                config=config,
                                 html=html,
                                 language_code=language_code,
                                 text=text,
