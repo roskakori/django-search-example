@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional
 
 from django.contrib.postgres.search import SearchQuery, SearchVector
-from django.core.exceptions import BadRequest, ValidationError
+from django.core.exceptions import BadRequest
 from django.db import connection
 from django.db.models import QuerySet
 from django.http.request import HttpRequest
@@ -19,11 +19,8 @@ def search_query_view(request: HttpRequest) -> HttpResponse:
         form = SearchForm(request.POST)
         if form.is_valid():
             search_term = form.cleaned_data.get("search_term")
-            try:
-                parameters = {"search_term": search_term}
-                return redirect(reverse_with_parameters("search_result", parameters))
-            except ValidationError as error:
-                form.add_error("search_term", error)
+            parameters = {"search_term": search_term}
+            return redirect(reverse_with_parameters("search_result", parameters))
     else:
         form = SearchForm()
     return render(
@@ -38,7 +35,7 @@ def search_query_view(request: HttpRequest) -> HttpResponse:
 def search_result_view(request: HttpRequest) -> HttpResponse:
     form = SearchForm(request.GET)
     if not form.is_valid():
-        raise BadRequest()
+        raise BadRequest(f"form must be valid: {form.errors}")
     search_term = form.cleaned_data["search_term"]
     documents = documents_matching(search_term)[:20]
     search_expression = to_tsquery(search_term)
