@@ -15,7 +15,7 @@ MAX_INTRO_LINES = 200
 
 DEFAULT_ENCODING = "iso-8859-1"
 
-_BATCH_SIZE = 50
+_BULK_SIZE = 50
 
 _DEFAULT_BASE_DIR = BASE_DIR / "gutenberg"
 _DEFAULT_MAX_COUNT = 100
@@ -60,8 +60,11 @@ _BROKEN_ENCODING_TO_ENCODING_MAP = {
     "cp-1251": "cp1251",
     "cp-1252": "cp1252",
     "iso latin-1": "iso-8859-1",
+    "iso-latin-1": "iso-8859-1",
     "iso-646-us (us-ascii)": "ascii",
     "iso-859-1": "iso-8859-1",
+    "iso-8859": "iso-8859-1",
+    "iso 8859-1 (latin-1)": "iso-8859-1",
     "unicode utf-8": "utf-8",
 }
 
@@ -157,20 +160,21 @@ class Command(BaseCommand):
                     pass
             except CommandError as error:
                 self.stdout.write(f"Warning: {error}")
-            if len(documents_to_add) >= _BATCH_SIZE:
+            if len(documents_to_add) >= _BULK_SIZE:
                 Document.objects.bulk_create(documents_to_add)
                 documents_to_add.clear()
         Document.objects.bulk_create(documents_to_add)
 
-    def _update_search_vectors(self):
+    @staticmethod
+    def _update_search_vectors():
         documents_to_update = []
-        for document in tracked_progress(Document.objects.all(), description="Updating search vectors"):
+        for document in tracked_progress(Document.objects.all(), description="  Updating search vectors"):
             document.update_search_vector()
             documents_to_update.append(document)
-            if len(documents_to_update) >= _BATCH_SIZE:
+            if len(documents_to_update) >= _BULK_SIZE:
                 Document.objects.bulk_update(documents_to_update, fields=["search_vector"])
                 documents_to_update.clear()
-        # Upate remaining documents.
+        # Update remaining documents.
         Document.objects.bulk_update(documents_to_update, fields=["search_vector"])
 
 
