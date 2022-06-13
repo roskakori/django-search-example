@@ -68,6 +68,8 @@ _BROKEN_ENCODING_TO_ENCODING_MAP = {
     "unicode utf-8": "utf-8",
 }
 
+_unknown_languages = set()
+
 _log = logging.getLogger(__name__)
 
 
@@ -199,9 +201,6 @@ def _title_authors_language_from(text: str) -> Tuple[str, str, str]:
             title = _text_after_colon(line)
         line_index += 1
     return title, authors, language
-
-
-_unknown_languages = set()
 
 
 def _language_code(language: str) -> str:
