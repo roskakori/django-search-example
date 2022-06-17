@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Gutensearch for {{ search_term }}</title>
-  </head>
-  <body>
-    <h1>Gutensearch for {{ search_term }}</h1>
-    {% for document in documents %}
-    <p>
-      <a href="{% url 'document' pk=document.pk %}">{{ document.title }}</a>
-      ({{ document.authors }})
-    </p>
-    <hr>
-    {% endfor %}
-  </body>
+    <head>
+        <title>Gutensearch for {{ search_term }}</title>
+    </head>
+    <body>
+        <h1>Gutensearch for {{ search_term }}</h1>
+        {% for document in documents %}
+            <p>
+                <a href="{% url 'document' pk=document.pk %}">{{ document.title }}</a>
+                ({{ document.authors }})
+            </p>
+            <hr>
+        {% endfor %}
+    </body>
 </html>
