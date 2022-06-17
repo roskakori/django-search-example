@@ -8,9 +8,10 @@
         <p>Search expression: {{ search_expression }}</p>
         {% for document in documents %}
             <p>
-                <a href="{% url 'document' pk=document.pk %}">{{ document.title }}</a>
+                <a href="{% url 'document' pk=document.pk %}">{{ document.search_headline_title|safe }}</a>
                 ({{ document.authors }})
             </p>
+            <p>{{ document.search_headline_text|safe }}</p>
             <p>Rank: {{ document.rank }}</p>
             <hr>
         {% endfor %}
