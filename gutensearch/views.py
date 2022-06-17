@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.core.exceptions import BadRequest
 from django.db import connection
-from django.db.models import F, QuerySet
+from django.db.models import F, QuerySet, Value
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -59,7 +59,8 @@ def to_tsquery(search_term: str) -> str:
 
 def documents_matching(search_term: str) -> QuerySet[Document]:
     search_query = SearchQuery(search_term, search_type="raw")
-    search_rank = SearchRank(F("search_vector"), search_query)
+    # Normalization=1 divides the rank by 1 + the logarithm of the document length.
+    search_rank = SearchRank(F("search_vector"), search_query, normalization=Value(1))
     return (
         Document.objects.annotate(
             rank=search_rank,
