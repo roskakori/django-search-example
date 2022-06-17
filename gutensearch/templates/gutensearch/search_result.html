@@ -5,6 +5,7 @@
     </head>
     <body>
         <h1>Gutensearch for {{ search_term }}</h1>
+        <p>Search expression: {{ search_expression }}</p>
         {% for document in documents %}
             <p>
                 <a href="{% url 'document' pk=document.pk %}">{{ document.title }}</a>
