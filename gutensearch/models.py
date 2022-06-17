@@ -24,7 +24,7 @@ class Document(models.Model):
 
     def update_search_vector(self):
         assert self.id is not None, f"{Document.__name__} must be saved before updating the search_vector"
-        self.search_vector = SearchVector("text") + SearchVector("title")
+        self.search_vector = SearchVector("text", weight="B") + SearchVector("title", weight="A")
 
     class Meta:
         indexes = [GinIndex(fields=["search_vector"], name="%(app_label)s_doc_search_idx")]  # name <= 30 characters
