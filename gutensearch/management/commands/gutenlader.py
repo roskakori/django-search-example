@@ -28,7 +28,7 @@ WARNING_MULTIPLE_LANGUAGES = "W301"
 WARNING_UNKNOWN_LANGUAGE = "W302"
 WARNING_FILE_TOO_LARGE = "W400"
 
-_BATCH_SIZE = 100
+_BULK_SIZE = 50
 
 _DEFAULT_BASE_DIR = BASE_DIR / "gutenberg"
 _DEFAULT_IGNORE = ",".join(
@@ -188,6 +188,7 @@ class Command(BaseCommand):
         self._id_to_text_path_map = self._id_to_path_map("[0-9]*-8.txt")
         self._id_to_html_path_map = self._id_to_path_map("[0-9]*-h.htm")
         self._import_documents()
+        self._update_search_vectors()
         document_count = Document.objects.count()
         self.stdout.write(self.style.SUCCESS(f"Successfully imported {document_count} documents"))
 
@@ -217,7 +218,7 @@ class Command(BaseCommand):
                     documents_to_add.append(document_to_add)
             except CommandError as error:
                 self.stdout.write(f"Warning: {error}")
-            if len(documents_to_add) >= _BATCH_SIZE:
+            if len(documents_to_add) >= _BULK_SIZE:
                 Document.objects.bulk_create(documents_to_add)
                 documents_to_add.clear()
         Document.objects.bulk_create(documents_to_add)
@@ -249,6 +250,18 @@ class Command(BaseCommand):
                 text_path, WARNING_FILE_TOO_LARGE, f"Skipping too long file: {full_text_length_in_mb:.2f} MB"
             )
         return result
+
+    @staticmethod
+    def _update_search_vectors():
+        documents_to_update = []
+        for document in tracked_progress(Document.objects.all(), description="  Updating search vectors"):
+            document.update_search_vector()
+            documents_to_update.append(document)
+            if len(documents_to_update) >= _BULK_SIZE:
+                Document.objects.bulk_update(documents_to_update, fields=["search_vector"])
+                documents_to_update.clear()
+        # Update remaining documents.
+        Document.objects.bulk_update(documents_to_update, fields=["search_vector"])
 
     def _log_document_warning(self, path: Path, code, message: str):
         if code not in self._warning_codes_to_ignore:
