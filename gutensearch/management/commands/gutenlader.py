@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand, CommandError
 from rich.progress import track as tracked_progress
 
 from django_search_example.settings import BASE_DIR
-from gutensearch.models import Document
+from gutensearch.models import Document, Language
 
 MAX_INTRO_LENGTH = 10000
 MAX_INTRO_LINES = 200
@@ -235,10 +235,13 @@ class Command(BaseCommand):
                 intro_lines, text_lines = self._intro_and_text_lines(text_path, full_text)
                 title, authors, language = _title_authors_language_from(intro_lines)
                 language_code = self._language_code(text_path, language)
+                language = Language(language_code) if language_code in Language else Language.OTHER
+                config = language.config
                 text = "\n".join(text_lines).strip(" \n\t")
                 result = Document(
                     id=document_id,
                     authors=authors,
+                    config=config,
                     html=html,
                     language_code=language_code,
                     text=text,
