@@ -2,8 +2,6 @@
 line-length = 120
 include = '\.pyi?$'
 target-version = [
-    "py36",
-    "py37",
     "py38",
     "py39",
     "py310",
@@ -40,7 +38,7 @@ authors = ["Thomas Aglassinger <roskakori@users.sourceforge.net>"]
 
 [tool.poetry.dependencies]
 python = ">=3.8, <4"
-Django = "^4.0.4"
+Django = "^4.2.3"
 django-extensions = "^3.1.5"
 psycopg2 = "^2.9.3"
 psycopg2-binary = "^2.9.3"
