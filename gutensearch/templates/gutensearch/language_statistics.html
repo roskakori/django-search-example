@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Language Statistics - Gutensearch</title>
-  </head>
-  <body>
-    <p>
-        📖 Gutensearch:
-        <a href="{% url 'search_query' %}">🔍 Search</a> |
-        <a href="{% url 'language_statistics' %}">🌐 Languages</a> |
-        <a href="{% url 'admin:index' %}">⚙️Admin</a>
-    </p>
-    <h1>Language Statistics</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Count</th>
-                <th>Language code</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for language_and_count in language_and_counts %}
+    <head>
+        <title>Language Statistics - Gutensearch</title>
+    </head>
+    <body>
+        <p>
+            📖 Gutensearch:
+            <a href="{% url 'search_query' %}">🔍 Search</a> |
+            <a href="{% url 'language_statistics' %}">🌐 Languages</a> |
+            <a href="{% url 'admin:index' %}">⚙️Admin</a>
+        </p>
+        <h1>Language Statistics</h1>
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ language_and_count.count }}</td>
-                    <td>{{ language_and_count.language_code }}</td>
+                    <th>Count</th>
+                    <th>Language code</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-  </body>
+            </thead>
+            <tbody>
+                {% for language_and_count in language_and_counts %}
+                    <tr>
+                        <td>{{ language_and_count.count }}</td>
+                        <td>{{ language_and_count.language_code }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
 </html>
