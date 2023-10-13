@@ -1,7 +1,9 @@
 from typing import Any, Dict, Optional
 
+from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.core.exceptions import BadRequest
-from django.db.models import Q, QuerySet
+from django.db import connection
+from django.db.models import F, QuerySet
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -36,18 +38,35 @@ def search_result_view(request: HttpRequest) -> HttpResponse:
         raise BadRequest(f"form must be valid: {form.errors}")
     search_term = form.cleaned_data["search_term"]
     documents = documents_matching(search_term)[:20]
+    search_expression = to_tsquery(search_term)
     return render(
         request,
         "gutensearch/search_result.html",
         {
             "documents": documents,
+            "search_expression": search_expression,
             "search_term": search_term,
         },
     )
 
 
+def to_tsquery(search_term: str) -> str:
+    with connection.cursor() as cursor:
+        cursor.execute("select to_tsquery(%s, %s)", ["simple", search_term])
+        (result,) = cursor.fetchone()
+    return result
+
+
 def documents_matching(search_term: str) -> QuerySet[Document]:
-    return Document.objects.filter(Q(title__icontains=search_term) | Q(text__icontains=search_term)).order_by("id")
+    search_query = SearchQuery(search_term, search_type="raw")
+    search_rank = SearchRank(F("search_vector"), search_query)
+    return (
+        Document.objects.annotate(
+            rank=search_rank,
+        )
+        .filter(search_vector=search_query)
+        .order_by("-rank")
+    )
 
 
 def reverse_with_parameters(view_name: str, parameters: Dict[str, Optional[Any]]) -> str:
