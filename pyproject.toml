@@ -46,7 +46,7 @@ rich = "^13.6.0"
 django-debug-toolbar = "^4.2.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.4.2"
+pytest = "^7.4.3"
 docker-compose = "^1.29.2"
 pytest-django = "^4.6.0"
 pytest-cov = "^4.1.0"
